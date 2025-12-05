@@ -127,6 +127,21 @@ cargo run -p whytcard-intelligence -- --namespace copilot
 | `external_docs` | Library documentation (Context7) |
 | `external_search` | Web search (Tavily) |
 
+### MCP Server Management
+
+| Tool | Description |
+|------|-------------|
+| `mcp_available_servers` | List predefined MCP servers |
+| `mcp_list_installed` | List installed servers |
+| `mcp_install` | Install a server |
+| `mcp_uninstall` | Uninstall a server |
+| `mcp_connect` | Connect to a server |
+| `mcp_disconnect` | Disconnect from a server |
+| `mcp_list_tools` | List tools of a server |
+| `mcp_call` | Call a tool on external server |
+| `mcp_status` | Get connection status |
+| `mcp_configure` | Configure server settings |
+
 ## Configuration
 
 ### Environment Variables
@@ -140,20 +155,71 @@ WHYTCARD_NAMESPACE=copilot
 
 # External APIs (optional)
 TAVILY_API_KEY=your-key
-CONTEXT7_API_KEY=your-key
 ```
 
-### MCP Client Configuration
+### Predefined MCP Servers
 
-Configure external MCP servers in `core/mcp/servers.json`:
+The following MCP servers are pre-configured and can be connected on demand:
+
+| Server | Description | Requires API Key |
+|--------|-------------|------------------|
+| `sequential-thinking` | Problem decomposition & analysis | No |
+| `context7` | Library documentation lookup | No |
+| `playwright` | Browser automation & testing | No |
+| `memory` | Persistent memory storage | No |
+| `microsoft-learn` | Microsoft/Azure documentation | No |
+| `markitdown` | Document conversion to markdown | No |
+| `chrome-devtools` | Chrome DevTools Protocol | No |
+| `tavily` | Web search & research | Yes (`TAVILY_API_KEY`) |
+
+### MCP Server Configuration
+
+Servers are managed via `core/mcp/servers.json`:
 
 ```json
 {
-  "servers": {
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/mcp-sequential-thinking"]
-    }
+  "sequential-thinking": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-sequential-thinking"],
+    "enabled": true
+  },
+  "context7": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/context7-mcp"],
+    "enabled": true
+  },
+  "playwright": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-playwright"],
+    "enabled": true
+  },
+  "memory": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-memory"],
+    "enabled": true
+  },
+  "microsoft-learn": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-microsoft-learn"],
+    "enabled": true
+  },
+  "markitdown": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-markitdown"],
+    "enabled": true
+  },
+  "chrome-devtools": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-chrome-devtools"],
+    "enabled": true
+  },
+  "tavily": {
+    "command": "npx",
+    "args": ["-y", "tavily-mcp"],
+    "env": {
+      "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+    },
+    "enabled": true
   }
 }
 ```
