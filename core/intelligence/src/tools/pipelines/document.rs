@@ -111,7 +111,7 @@ pub struct ErrorFixEntry {
 }
 
 /// Parameters for the document pipeline
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct DocumentParams {
     /// Task logs to record
     #[serde(default)]
@@ -191,21 +191,6 @@ pub struct DocumentResult {
 
     /// Session ID
     pub session_id: Option<String>,
-}
-
-impl Default for DocumentParams {
-    fn default() -> Self {
-        Self {
-            task_logs: Vec::new(),
-            decisions: Vec::new(),
-            patterns: Vec::new(),
-            feedbacks: Vec::new(),
-            knowledge: Vec::new(),
-            error_fixes: Vec::new(),
-            global_tags: Vec::new(),
-            session_id: None,
-        }
-    }
 }
 
 impl DocumentParams {}

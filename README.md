@@ -1,21 +1,21 @@
 # WhytCard
 
-**Local AI Ecosystem** — Secure, Local, Sovereign.
+**AI Infrastructure** — RAG. MCP. Multi-Agent.
 
-A high-performance local AI system built with Rust & Tauri. Stop renting your intelligence.
+A high-performance AI infrastructure built with Rust. MCP Gateway for dynamic tool orchestration.
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
 
 ## Overview
 
-WhytCard is a complete local AI ecosystem featuring:
+WhytCard is an AI infrastructure featuring:
 
 - **CORTEX Engine** — Cognitive orchestration with Perceive → Execute → Learn pipeline
 - **Triple Memory System** — Semantic (vectors), Episodic (events), Procedural (rules)
 - **Knowledge Graph** — Structured entities and relations via SurrealDB
-- **MCP Server** — Model Context Protocol for AI tool integration
-- **Local LLM** — Run quantized models (Llama 3, Mistral) on your hardware
+- **MCP Gateway** — Install and orchestrate any MCP server dynamically
+- **RAG Pipeline** — Document ingestion with FastEmbed embeddings
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -41,14 +41,8 @@ whytcard/
 │   ├── intelligence/        # MCP Server + CORTEX Engine
 │   ├── database/            # SurrealDB (documents, vectors, graph)
 │   ├── rag/                 # Retrieval-Augmented Generation
-│   ├── llm/                 # Local LLM inference
-│   └── hub/                 # Tauri app + HTTP API (WIP)
-│
-├── addons/                  # Extensions
-│   ├── chrome/              # Browser extension
-│   ├── vscode/              # VS Code extension
-│   ├── ears/                # STT service (Whisper)
-│   └── voice/               # TTS service (XTTS)
+│   ├── llm/                 # Local LLM inference (GGUF)
+│   └── mcp/                 # MCP Gateway configuration
 │
 └── data/                    # Runtime data
     ├── cortex/              # Memory storage
@@ -235,7 +229,7 @@ cd core/database && cargo build
 # RAG
 cd core/rag && cargo build
 
-# Intelligence
+# Intelligence (MCP Server)
 cd core/intelligence && cargo build
 
 # LLM
@@ -255,41 +249,6 @@ cargo test
 cargo clippy -p whytcard-intelligence
 ```
 
-## Addons
-
-### Chrome Extension
-
-```bash
-cd addons/chrome
-npm install
-# Load unpacked extension in Chrome
-```
-
-### VS Code Extension
-
-```bash
-cd addons/vscode
-npm install
-npm run compile
-# Press F5 in VS Code to debug
-```
-
-### Ears (STT)
-
-```bash
-cd addons/ears
-pip install -r requirements.txt
-python -m ears
-```
-
-### Voice (TTS)
-
-```bash
-cd addons/voice
-pip install -r requirements.txt
-python -m voice
-```
-
 ## Tech Stack
 
 | Component | Technology |
@@ -297,10 +256,9 @@ python -m voice
 | Core Engine | Rust |
 | Database | SurrealDB (embedded) |
 | Embeddings | FastEmbed (ONNX) |
+| LLM Inference | llama.cpp (GGUF) |
 | MCP Protocol | rmcp SDK |
-| Desktop App | Tauri (planned) |
-| Browser Extension | Manifest V3 |
-| IDE Extension | VS Code Extension API |
+| IDE Integration | VS Code Extension (VSIX) |
 
 ## Roadmap
 
@@ -308,12 +266,10 @@ python -m voice
 - [x] CORTEX Engine (Perceive, Execute, Learn)
 - [x] Knowledge Graph
 - [x] MCP Server
+- [x] MCP Gateway (dynamic server management)
 - [x] External Integrations (Context7, Tavily, MS Learn)
-- [x] Chrome Extension
-- [x] VS Code Extension
-- [ ] Tauri Desktop App (Hub)
 - [ ] Multi-Agent System
-- [ ] Voice Interface
+- [ ] Advanced RAG Pipeline
 
 ## License
 

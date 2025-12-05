@@ -310,7 +310,7 @@ impl InstalledMcpServer {
         // package-name -> package-name
         self.package
             .split('/')
-            .last()
+            .next_back()
             .unwrap_or(&self.package)
             .to_string()
     }

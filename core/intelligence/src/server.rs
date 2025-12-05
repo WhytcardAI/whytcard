@@ -109,7 +109,7 @@ impl IntelligenceServer {
         tracing::info!("Data directory: {:?}", paths.root);
 
         // Initialize SurrealDB database
-        let storage = if paths.database.to_str().map_or(false, |s| s.contains(":memory:")) {
+        let storage = if paths.database.to_str().is_some_and(|s| s.contains(":memory:")) {
             StorageMode::Memory
         } else {
             StorageMode::Persistent(paths.database.clone())
@@ -339,7 +339,7 @@ impl IntelligenceServer {
 
         let items = results
             .into_iter()
-            .filter(|r| params.min_score.map_or(true, |min| r.score >= min))
+            .filter(|r| params.min_score.is_none_or(|min| r.score >= min))
             .map(|r| {
                 // Extract title from metadata if present
                 let title = r.chunk.metadata.as_ref().and_then(|m| {
@@ -3204,9 +3204,9 @@ impl IntelligenceServer {
                 "user_id": params.user_id,
             });
 
-            let doc = whytcard_database::CreateDocument::new(&content.to_string())
+            let doc = whytcard_database::CreateDocument::new(content.to_string())
                 .with_key(&key)
-                .with_title(&format!("User Instruction: {}", ui_def.key))
+                .with_title(format!("User Instruction: {}", ui_def.key))
                 .with_tags(vec!["user_instruction".to_string(), ui_def.category.clone()]);
 
             let replaced = self.db.get_document(&key).await.map(|d| d.is_some()).unwrap_or(false);
@@ -3926,7 +3926,7 @@ impl IntelligenceServer {
             }
             ManageAction::ListInstalled => {
                 let config = self.mcp_config.read().await;
-                let servers: Vec<ServerInfo> = config.list_all().into_iter().map(|(name, server)| {
+                let servers: Vec<ServerInfo> = config.list_all().map(|(name, server)| {
                     ServerInfo {
                         name: name.clone(),
                         status: if server.enabled { "installed" } else { "disabled" }.to_string(),
