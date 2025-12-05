@@ -4,16 +4,30 @@
 //!
 //! # Usage
 //!
+//! ## Single Instance (stdio - default)
 //! ```bash
-//! # Default instance
+//! # Default instance (stdio transport, single client)
 //! whytcard-intelligence
 //!
 //! # Named namespace (isolated data partition)
 //! whytcard-intelligence --namespace copilot
 //! whytcard-intelligence -n vscode
+//! ```
 //!
-//! # Via environment variable
+//! ## Multi-Session Mode (SSE server)
+//! ```bash
+//! # Start in SSE server mode (multiple concurrent clients)
+//! whytcard-intelligence --port 3000
+//! whytcard-intelligence -p 8080 --namespace shared
+//!
+//! # Clients connect via SSE to http://localhost:3000/sse
+//! # and POST messages to http://localhost:3000/message
+//! ```
+//!
+//! ## Environment Variables
+//! ```bash
 //! WHYTCARD_NAMESPACE=copilot whytcard-intelligence
+//! WHYTCARD_PORT=3000 whytcard-intelligence
 //! ```
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -21,6 +35,8 @@ use whytcard_intelligence::{IntelligenceConfig, IntelligenceServer};
 
 /// Environment variable for namespace
 const NAMESPACE_ENV: &str = "WHYTCARD_NAMESPACE";
+/// Environment variable for port (SSE mode)
+const PORT_ENV: &str = "WHYTCARD_PORT";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -34,12 +50,30 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     // Parse command line arguments
-    let namespace = parse_namespace();
+    let (namespace, port) = parse_args();
 
-    if let Some(ref ns) = namespace {
-        tracing::info!("WhytCard Intelligence MCP Server starting with namespace: {}", ns);
+    // Determine transport mode
+    let transport_mode = if let Some(p) = port {
+        TransportMode::Sse(p)
     } else {
-        tracing::info!("WhytCard Intelligence MCP Server starting (default namespace)...");
+        TransportMode::Stdio
+    };
+
+    match &transport_mode {
+        TransportMode::Stdio => {
+            if let Some(ref ns) = namespace {
+                tracing::info!("WhytCard Intelligence MCP Server starting (stdio) with namespace: {}", ns);
+            } else {
+                tracing::info!("WhytCard Intelligence MCP Server starting (stdio, default namespace)...");
+            }
+        }
+        TransportMode::Sse(port) => {
+            tracing::info!(
+                "WhytCard Intelligence MCP Server starting (SSE multi-session) on port {}{}",
+                port,
+                namespace.as_ref().map(|ns| format!(", namespace: {}", ns)).unwrap_or_default()
+            );
+        }
     }
 
     // Load configuration with optional namespace
@@ -48,31 +82,77 @@ async fn main() -> anyhow::Result<()> {
         None => IntelligenceConfig::default(),
     };
 
-    // Create and run server
+    // Create server
     let server = IntelligenceServer::new(config).await?;
-    server.run_stdio().await?;
+
+    // Run with appropriate transport
+    match transport_mode {
+        TransportMode::Stdio => {
+            server.run_stdio().await?;
+        }
+        TransportMode::Sse(port) => {
+            server.run_sse(port).await?;
+        }
+    }
 
     Ok(())
 }
 
-/// Parse namespace from CLI args or environment variable
-fn parse_namespace() -> Option<String> {
-    let args: Vec<String> = std::env::args().collect();
+/// Transport mode for the server
+enum TransportMode {
+    /// Single client via stdio (default)
+    Stdio,
+    /// Multiple clients via SSE server
+    Sse(u16),
+}
 
-    // Check CLI args: --namespace <name> or -n <name>
-    for i in 0..args.len() {
-        if (args[i] == "--namespace" || args[i] == "-n") && i + 1 < args.len() {
-            return Some(args[i + 1].clone());
-        }
-        // Also support --namespace=value format
-        if args[i].starts_with("--namespace=") {
-            return Some(args[i].trim_start_matches("--namespace=").to_string());
-        }
-        if args[i].starts_with("-n=") {
-            return Some(args[i].trim_start_matches("-n=").to_string());
+/// Parse namespace and port from CLI args or environment variables
+fn parse_args() -> (Option<String>, Option<u16>) {
+    let args: Vec<String> = std::env::args().collect();
+    let mut namespace = None;
+    let mut port = None;
+
+    // Parse CLI args
+    let mut i = 1;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--namespace" | "-n" if i + 1 < args.len() => {
+                namespace = Some(args[i + 1].clone());
+                i += 2;
+            }
+            arg if arg.starts_with("--namespace=") => {
+                namespace = Some(arg.trim_start_matches("--namespace=").to_string());
+                i += 1;
+            }
+            arg if arg.starts_with("-n=") => {
+                namespace = Some(arg.trim_start_matches("-n=").to_string());
+                i += 1;
+            }
+            "--port" | "-p" if i + 1 < args.len() => {
+                port = args[i + 1].parse().ok();
+                i += 2;
+            }
+            arg if arg.starts_with("--port=") => {
+                port = arg.trim_start_matches("--port=").parse().ok();
+                i += 1;
+            }
+            arg if arg.starts_with("-p=") => {
+                port = arg.trim_start_matches("-p=").parse().ok();
+                i += 1;
+            }
+            _ => {
+                i += 1;
+            }
         }
     }
 
-    // Check environment variable
-    std::env::var(NAMESPACE_ENV).ok()
+    // Check environment variables as fallback
+    if namespace.is_none() {
+        namespace = std::env::var(NAMESPACE_ENV).ok();
+    }
+    if port.is_none() {
+        port = std::env::var(PORT_ENV).ok().and_then(|p| p.parse().ok());
+    }
+
+    (namespace, port)
 }

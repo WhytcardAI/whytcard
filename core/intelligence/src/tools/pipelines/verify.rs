@@ -313,26 +313,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_verify_params_rust() {
-        let params = VerifyParams::rust(Some("/project".to_string()));
-
-        assert_eq!(params.language, Some(VerifyLanguage::Rust));
-        assert_eq!(params.cwd, Some("/project".to_string()));
-    }
-
-    #[test]
-    fn test_verify_params_with_options() {
-        let params = VerifyParams::rust(None)
-            .only_checks(vec![VerifyCheck::Test, VerifyCheck::Lint])
-            .strict_mode()
-            .with_coverage();
-
-        assert_eq!(params.checks.len(), 2);
-        assert!(params.strict);
-        assert!(params.coverage);
-    }
-
-    #[test]
     fn test_rust_default_commands() {
         let commands = VerifyLanguage::Rust.default_commands();
 

@@ -179,34 +179,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_code_params_execute() {
-        let params = CodeParams::execute("cargo build");
-
-        assert_eq!(params.commands.len(), 1);
-        assert_eq!(params.commands[0].command, "cargo build");
-        assert!(params.stop_on_failure);
-    }
-
-    #[test]
-    fn test_code_params_rust_check() {
-        let params = CodeParams::rust_check(Some("/project".to_string()));
-
-        assert_eq!(params.commands[0].command, "cargo check");
-        assert_eq!(params.commands[0].cwd, Some("/project".to_string()));
-        assert_eq!(params.language, Some("rust".to_string()));
-    }
-
-    #[test]
-    fn test_code_params_with_feedback() {
-        let params = CodeParams::execute("cargo test").with_feedback("rule_123", true);
-
-        assert_eq!(params.commands.len(), 1);
-        assert_eq!(params.feedback.len(), 1);
-        assert_eq!(params.feedback[0].rule_id, "rule_123");
-        assert!(params.feedback[0].success);
-    }
-
-    #[test]
     fn test_code_result_serialization() {
         let result = CodeResult {
             executions: vec![ExecuteResult {

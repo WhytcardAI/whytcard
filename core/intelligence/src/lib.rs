@@ -5,6 +5,7 @@
 //! - CORTEX Engine (Perceive, Execute, Learn)
 //! - Knowledge graph management
 //! - Semantic search (via RAG)
+//! - Multi-session support (SSE transport)
 //!
 //! # Architecture
 //!
@@ -26,11 +27,21 @@
 //!
 //! # Usage
 //!
-//! ## As MCP Server (stdio transport)
+//! ## As MCP Server (stdio transport - single client)
 //!
 //! ```bash
 //! whytcard-intelligence
 //! ```
+//!
+//! ## As MCP Server (SSE transport - multiple clients)
+//!
+//! ```bash
+//! whytcard-intelligence --port 3000
+//! ```
+//!
+//! Clients connect via:
+//! - SSE endpoint: `http://localhost:3000/sse`
+//! - Message endpoint: `http://localhost:3000/message`
 //!
 //! ## With custom data directory
 //!
@@ -62,7 +73,8 @@ mod memory;
 pub mod mcp_client;
 mod paths;
 mod server;
-mod tools;
+pub mod session;
+pub mod tools;
 
 pub use config::IntelligenceConfig;
 pub use cortex::{CortexEngine, CortexConfig, CortexResult};
@@ -72,4 +84,5 @@ pub use mcp_client::{McpClientManager, McpToolResult, McpServerConfig, Sequentia
 pub use memory::{TripleMemory, MemoryStats};
 pub use paths::DataPaths;
 pub use server::IntelligenceServer;
+pub use session::{MultiSessionManager, ClientInfo, ClientSession, SessionId, SessionStats};
 pub use tools::cortex::{init_cortex, cortex_process, cortex_feedback, cortex_stats, cortex_cleanup};

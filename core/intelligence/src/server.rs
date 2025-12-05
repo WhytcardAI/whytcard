@@ -219,6 +219,8 @@ impl IntelligenceServer {
     /// Create server for testing with in-memory database
     #[cfg(test)]
     pub async fn for_testing(temp_dir: &std::path::Path) -> crate::Result<Self> {
+        use crate::paths::DataPaths;
+        
         let paths = DataPaths::for_testing(temp_dir);
         paths.ensure_directories()?;
 
@@ -252,7 +254,6 @@ impl IntelligenceServer {
 
         Ok(Self {
             config: Arc::new(IntelligenceConfig::default()),
-            paths: Arc::new(paths),
             db: Arc::new(db),
             rag: Arc::new(RwLock::new(rag)),
             cortex: Arc::new(cortex),
@@ -4183,6 +4184,111 @@ impl IntelligenceServer {
             .await
             .map_err(|e| IntelligenceError::config(format!("Server error: {}", e)))?;
 
+        Ok(())
+    }
+
+    /// Run the server with SSE transport for multiple concurrent clients
+    ///
+    /// This mode allows multiple MCP clients to connect simultaneously.
+    /// Each client maintains its own session with isolated CORTEX context.
+    ///
+    /// # Endpoints
+    ///
+    /// - `GET /sse` - SSE connection endpoint for receiving server events
+    /// - `POST /message` - Endpoint for sending messages to the server
+    ///
+    /// # Example
+    ///
+    /// ```bash
+    /// # Start server on port 3000
+    /// whytcard-intelligence --port 3000
+    ///
+    /// # Clients connect via SSE to http://localhost:3000/sse
+    /// ```
+    pub async fn run_sse(self, port: u16) -> crate::Result<()> {
+        use rmcp::transport::sse_server::{SseServer, SseServerConfig};
+        use std::net::SocketAddr;
+        use tokio_util::sync::CancellationToken;
+        use futures::StreamExt;
+
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+
+        tracing::info!(
+            "Starting Intelligence MCP server on SSE transport at http://{}",
+            addr
+        );
+        tracing::info!("Clients can connect via:");
+        tracing::info!("  - SSE: http://{}/sse", addr);
+        tracing::info!("  - Messages: POST http://{}/message", addr);
+
+        // Create cancellation token
+        let ct = CancellationToken::new();
+
+        // Create SSE server config
+        let config = SseServerConfig {
+            bind: addr,
+            sse_path: "/sse".to_string(),
+            post_path: "/message".to_string(),
+            ct: ct.clone(),
+            sse_keep_alive: Some(std::time::Duration::from_secs(30)),
+        };
+
+        // Create SSE server
+        let mut sse_server = SseServer::serve_with_config(config)
+            .await
+            .map_err(|e| IntelligenceError::config(format!("Failed to start SSE server: {}", e)))?;
+
+        // Clone self for session handling since we need to handle multiple connections
+        let session_manager = std::sync::Arc::new(crate::session::MultiSessionManager::new());
+
+        tracing::info!("SSE server started, waiting for connections...");
+
+        // Accept connections using Stream interface
+        while let Some(transport) = sse_server.next().await {
+            let server_clone = self.clone();
+            let sessions = session_manager.clone();
+
+            // Spawn a task for each client connection
+            tokio::spawn(async move {
+                // Create session for this client
+                let client_info = crate::session::ClientInfo::new("sse-client");
+                let session_id = match sessions.create_session(client_info).await {
+                    Ok(id) => id,
+                    Err(e) => {
+                        tracing::error!("Failed to create session: {}", e);
+                        return;
+                    }
+                };
+
+                tracing::info!(session_id = %session_id, "New SSE client connected");
+
+                // Serve this client
+                match server_clone.serve(transport).await {
+                    Ok(service) => {
+                        if let Err(e) = service.waiting().await {
+                            tracing::warn!(
+                                session_id = %session_id,
+                                "Client connection error: {}",
+                                e
+                            );
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!(
+                            session_id = %session_id,
+                            "Failed to serve client: {}",
+                            e
+                        );
+                    }
+                }
+
+                // Cleanup session
+                sessions.end_session(&session_id).await;
+                tracing::info!(session_id = %session_id, "SSE client disconnected");
+            });
+        }
+
+        tracing::info!("SSE server shutting down");
         Ok(())
     }
 }

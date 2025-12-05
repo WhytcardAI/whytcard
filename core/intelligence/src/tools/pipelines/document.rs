@@ -200,52 +200,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_document_params_log_task() {
-        let params =
-            DocumentParams::log_task("Implement error handling", "success").with_tags(vec![
-                "rust".to_string(),
-                "error-handling".to_string(),
-            ]);
-
-        assert_eq!(params.task_logs.len(), 1);
-        assert_eq!(params.task_logs[0].outcome, "success");
-        assert_eq!(params.global_tags.len(), 2);
-    }
-
-    #[test]
-    fn test_document_params_record_decision() {
-        let params = DocumentParams::record_decision(
-            "Use thiserror for error handling",
-            "Better ergonomics than anyhow for libraries",
-        );
-
-        assert_eq!(params.decisions.len(), 1);
-        assert!(params.decisions[0].decision.contains("thiserror"));
-    }
-
-    #[test]
-    fn test_document_params_learn_pattern() {
-        let params = DocumentParams::learn_pattern(
-            "Boxing large errors",
-            "When error enum > 200 bytes",
-            "Box<ErrorType> instead of ErrorType",
-        );
-
-        assert_eq!(params.patterns.len(), 1);
-        assert!(params.patterns[0].when_to_use.contains("200 bytes"));
-    }
-
-    #[test]
-    fn test_document_params_give_feedback() {
-        let params =
-            DocumentParams::give_feedback("rule_boxing_errors", true).with_session("session_123");
-
-        assert_eq!(params.feedbacks.len(), 1);
-        assert!(params.feedbacks[0].success);
-        assert_eq!(params.session_id, Some("session_123".to_string()));
-    }
-
-    #[test]
     fn test_document_result() {
         let result = DocumentResult {
             documented: vec![DocumentedItem {

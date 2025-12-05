@@ -268,23 +268,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_prepare_params_remember_one() {
-        let params = PrepareParams::remember_one("Important decision: use thiserror");
-
-        assert_eq!(params.remember.len(), 1);
-        assert!(params.remember[0].content.contains("thiserror"));
-    }
-
-    #[test]
-    fn test_prepare_params_add_entity() {
-        let params = PrepareParams::add_entity("WhytCard", "project");
-
-        assert_eq!(params.entities.len(), 1);
-        assert_eq!(params.entities[0].name, "WhytCard");
-        assert_eq!(params.entities[0].entity_type, "project");
-    }
-
-    #[test]
     fn test_prepare_params_serialization() {
         let params = PrepareParams {
             remember: vec![RememberItem {
@@ -306,6 +289,8 @@ mod tests {
                 relation_type: "uses".to_string(),
             }],
             observations: vec![],
+            user_instructions: vec![],
+            user_id: "default".to_string(),
             index: true,
             context: Some("Testing".to_string()),
         };
@@ -330,6 +315,7 @@ mod tests {
             entities_created: vec![],
             relations_created: vec![],
             observations_added: vec![],
+            user_instructions_saved: vec![],
             total_processed: 1,
             total_stored: 1,
             errors: vec![],

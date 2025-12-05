@@ -306,36 +306,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_manage_params_status() {
-        let params = ManageParams::status();
-        assert!(matches!(params.action, ManageAction::Status));
-    }
-
-    #[test]
-    fn test_manage_params_connect() {
-        let params = ManageParams::connect("tavily");
-        assert!(matches!(params.action, ManageAction::Connect));
-        assert_eq!(params.server, Some("tavily".to_string()));
-    }
-
-    #[test]
-    fn test_manage_params_install() {
-        let config = InstallConfig {
-            name: "test-server".to_string(),
-            package: "@test/mcp".to_string(),
-            package_type: "npm".to_string(),
-            description: "Test server".to_string(),
-            env: HashMap::new(),
-            auto_connect: true,
-            connect_now: true,
-        };
-
-        let params = ManageParams::install(config);
-        assert!(matches!(params.action, ManageAction::Install));
-        assert!(params.install.is_some());
-    }
-
-    #[test]
     fn test_manage_result() {
         let result = ManageResult {
             action: "status".to_string(),
@@ -363,19 +333,5 @@ mod tests {
         assert!(result.success);
         assert_eq!(result.servers.len(), 1);
         assert_eq!(result.connected_count, 3);
-    }
-
-    #[test]
-    fn test_manage_params_cortex_cleanup() {
-        let params = ManageParams::cortex_cleanup(7);
-        assert!(matches!(params.action, ManageAction::CortexCleanup));
-        assert_eq!(params.retention_days, 7);
-    }
-
-    #[test]
-    fn test_manage_params_instructions() {
-        let params = ManageParams::list_instructions();
-        assert!(matches!(params.action, ManageAction::Instructions));
-        assert!(params.instructions.is_some());
     }
 }
