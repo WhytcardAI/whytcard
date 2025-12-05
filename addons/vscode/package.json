@@ -1,0 +1,165 @@
+{
+  "name": "whytcard-vscode",
+  "displayName": "WhytCard VS Code",
+  "description": "Connect your VS Code to WhytCard Hub - Your local, private AI assistant. Chat with your codebase and documents without data leaving your machine.",
+  "version": "1.0.0",
+  "publisher": "WhytCard",
+  "license": "GPL-3.0",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhytcardAI/whytcard-vscode"
+  },
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Other"
+  ],
+  "keywords": [
+    "copilot",
+    "ai",
+    "chat",
+    "workspace",
+    "configuration",
+    "mcp",
+    "prompts",
+    "github"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "whytcard-sidebar",
+          "title": "WhytCard",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "whytcard-sidebar": [
+        {
+          "type": "webview",
+          "id": "whytcard.sidebar",
+          "name": "WhytCard",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "whytcard.openSidebar",
+        "title": "Open WhytCard",
+        "category": "WhytCard"
+      },
+      {
+        "command": "whytcard.initWorkspace",
+        "title": "Initialize Workspace",
+        "category": "WhytCard"
+      },
+      {
+        "command": "whytcard.configureMcp",
+        "title": "Generate MCP Configuration",
+        "category": "WhytCard"
+      },
+      {
+        "command": "whytcard.reconnectHub",
+        "title": "Reconnect to WhytCard Hub",
+        "category": "WhytCard"
+      }
+    ],
+    "configuration": {
+      "title": "WhytCard",
+      "properties": {
+        "whytcard.language": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "en",
+            "fr",
+            "es",
+            "de"
+          ],
+          "enumDescriptions": [
+            "Auto-detect from VS Code",
+            "English",
+            "Francais",
+            "Espanol",
+            "Deutsch"
+          ],
+          "description": "Interface language for WhytCard"
+        },
+        "whytcard.hubUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "WhytCard Hub URL (default: http://localhost:3000)"
+        },
+        "whytcard.autoConnectSSE": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically connect to Hub SSE for real-time updates"
+        },
+        "whytcard.autoDetectFramework": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically detect project framework from package.json"
+        },
+        "whytcard.includeDocumentation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include framework documentation in generated files"
+        },
+        "whytcard.generateWorkflows": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate GitHub Actions workflows"
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "whytcard.openSidebar",
+          "when": "true"
+        },
+        {
+          "command": "whytcard.initWorkspace",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "lint": "eslint src --ext ts",
+    "pretest": "npm run compile && npm run compile-tests",
+    "compile-tests": "tsc -p . --outDir out",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.x",
+    "@types/vscode": "^1.100.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.56.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.4.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.0",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {}
+}

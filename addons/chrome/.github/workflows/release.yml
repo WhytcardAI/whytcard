@@ -1,0 +1,46 @@
+# =============================================================================
+# WhytCard Chrome Extension - Release Pipeline
+# =============================================================================
+# Package and create GitHub release on tag push
+# Note: Chrome Web Store upload requires manual submission or API setup
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create extension package
+        run: |
+          mkdir -p dist
+          zip -r dist/whytcard-chrome-${{ github.ref_name }}.zip . \
+            -x "*.git*" \
+            -x "dist/*" \
+            -x "*.md" \
+            -x ".github/*"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/whytcard-chrome-*.zip
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            1. Download the `.zip` file
+            2. Extract the contents
+            3. Open Chrome and go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder

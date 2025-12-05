@@ -1,0 +1,157 @@
+# =============================================================================
+# WhytCard - Git Ignore
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Personal Data & Runtime Files (NEVER COMMIT)
+# -----------------------------------------------------------------------------
+
+# Database files (contain personal data)
+data/
+*.db/
+*.db
+*.sqlite
+*.sqlite-*
+*.db-shm
+*.db-wal
+whytcard.db/
+episodic.db/
+
+# Vector stores (contain embeddings of personal data)
+vectors/
+*.blob
+*.sst
+MANIFEST-*
+CURRENT
+IDENTITY
+LOCK
+LOG
+LOG.old.*
+OPTIONS-*
+
+# Log files
+logs/
+*.log
+
+# Model files (too large for git)
+models/
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# CORTEX learned data
+cortex/semantic/
+cortex/procedures/
+cortex/episodic.db/
+
+# -----------------------------------------------------------------------------
+# Cache Directories
+# -----------------------------------------------------------------------------
+
+# fastembed model cache
+.fastembed_cache/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# -----------------------------------------------------------------------------
+# Environment & Config (may contain secrets)
+# -----------------------------------------------------------------------------
+
+.env
+.env.local
+.env.*.local
+*.env
+config.local.*
+secrets.*
+
+# MCP config (may contain API keys)
+mcp_config.json
+mcp/config.json
+
+# -----------------------------------------------------------------------------
+# IDE & OS Files
+# -----------------------------------------------------------------------------
+
+# VS Code (keep settings, ignore local)
+.vscode/settings.json
+.vscode/*.local.*
+
+# JetBrains
+.idea/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.nfs*
+
+# -----------------------------------------------------------------------------
+# Build & Distribution
+# -----------------------------------------------------------------------------
+
+dist/
+build/
+*.egg-info/
+*.egg
+wheels/
+*.whl
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# Documentation builds
+docs/_build/
+site/
+
+# -----------------------------------------------------------------------------
+# Testing
+# -----------------------------------------------------------------------------
+
+# Test databases
+test_*.db
+*.test.db
+
+# Temporary test files
+.tmp/
+tmp/
+temp/
+
+# -----------------------------------------------------------------------------
+# Specific to this project
+# -----------------------------------------------------------------------------
+
+# Hub data (separate service)
+core/hub/
+
+# Keep empty directories
+!.gitkeep

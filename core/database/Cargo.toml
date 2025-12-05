@@ -1,0 +1,37 @@
+[package]
+description = "SurrealDB database layer for WhytCard - Documents, Vectors, and Knowledge Graph"
+edition = "2021"
+license = "GPL-3.0"
+name = "whytcard-database"
+version = "0.1.0"
+
+[dependencies]
+# SurrealDB embedded with in-memory and file-based storage
+surrealdb = { version = "2", features = ["kv-mem", "kv-rocksdb"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "2"
+
+# Logging
+tracing = "0.1"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Unique IDs
+nanoid = "0.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[features]
+default = ["memory"]
+memory = []
+persistent = []

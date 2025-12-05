@@ -1,0 +1,1178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhytCard</title>
+    <style>
+      :root {
+        --bg-primary: #0a0a0b;
+        --bg-secondary: #111113;
+        --bg-tertiary: #1a1a1d;
+        --bg-card: #141416;
+        --bg-hover: #1f1f23;
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --text-muted: #52525b;
+        --accent: #6366f1;
+        --accent-dim: #4f46e5;
+        --accent-glow: rgba(99, 102, 241, 0.12);
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-light: rgba(255, 255, 255, 0.1);
+        --radius-xs: 4px;
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+        --transition: 0.12s ease;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        font-size: 11px;
+        line-height: 1.4;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-light);
+        border-radius: 2px;
+      }
+
+      /* ========== COMPACT HEADER ========== */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        gap: 8px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--text-primary);
+      }
+
+      .brand img {
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+      }
+
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .ctrl-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        padding: 4px 6px;
+        border-radius: var(--radius-xs);
+        cursor: pointer;
+        font-size: 10px;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all var(--transition);
+      }
+
+      .ctrl-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+        border-color: var(--border);
+      }
+      .ctrl-btn.active {
+        background: var(--accent-glow);
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .ctrl-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .status-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--text-muted);
+      }
+
+      .status-indicator.on {
+        background: var(--success);
+        box-shadow: 0 0 6px var(--success);
+      }
+
+      /* ========== TOOLBAR ========== */
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .toolbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tool-chip {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 4px 8px;
+        font-size: 10px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all var(--transition);
+      }
+
+      .tool-chip:hover {
+        background: var(--bg-hover);
+        border-color: var(--border-light);
+        color: var(--text-primary);
+      }
+      .tool-chip.selected {
+        background: var(--accent-glow);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .tool-chip svg {
+        width: 10px;
+        height: 10px;
+        opacity: 0.7;
+      }
+      .tool-chip .count {
+        background: var(--bg-tertiary);
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 9px;
+      }
+
+      /* ========== MAIN VIEW ========== */
+      .main-view {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ========== GRAPH VIEW ========== */
+      .graph-view {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        background: var(--bg-primary);
+      }
+
+      .graph-view.active {
+        display: flex;
+      }
+
+      .graph-header {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .graph-title {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .graph-canvas {
+        flex: 1;
+        position: relative;
+        overflow: auto;
+        padding: 16px;
+      }
+
+      .node {
+        position: absolute;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: all var(--transition);
+        max-width: 140px;
+      }
+
+      .node:hover {
+        border-color: var(--accent);
+        transform: scale(1.02);
+      }
+      .node.project {
+        border-left: 2px solid var(--accent);
+      }
+      .node.session {
+        border-left: 2px solid var(--success);
+      }
+      .node.document {
+        border-left: 2px solid var(--warning);
+      }
+
+      .node-type {
+        font-size: 8px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 2px;
+      }
+      .node-name {
+        font-size: 10px;
+        color: var(--text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .node-meta {
+        font-size: 8px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .graph-link {
+        position: absolute;
+        height: 1px;
+        background: var(--border-light);
+        transform-origin: left center;
+        pointer-events: none;
+      }
+
+      .graph-stats {
+        display: flex;
+        gap: 12px;
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-secondary);
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9px;
+        color: var(--text-muted);
+      }
+      .stat-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .stat-dot.project {
+        background: var(--accent);
+      }
+      .stat-dot.session {
+        background: var(--success);
+      }
+      .stat-dot.document {
+        background: var(--warning);
+      }
+
+      /* ========== CHAT VIEW ========== */
+      .chat-view {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .chat-view.active {
+        display: flex;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .msg {
+        max-width: 90%;
+        padding: 8px 10px;
+        border-radius: var(--radius-md);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .msg.user {
+        background: var(--accent);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+      }
+
+      .msg.assistant {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+      }
+
+      .msg-time {
+        font-size: 8px;
+        color: var(--text-muted);
+        margin-top: 4px;
+        opacity: 0.6;
+      }
+      .msg.user .msg-time {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .empty-chat {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: 10px;
+        gap: 8px;
+      }
+
+      .empty-chat svg {
+        width: 32px;
+        height: 32px;
+        opacity: 0.3;
+      }
+
+      /* ========== INPUT AREA ========== */
+      .input-bar {
+        padding: 8px 12px;
+        background: var(--bg-secondary);
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 6px;
+        align-items: flex-end;
+      }
+
+      .input-field {
+        flex: 1;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 8px 10px;
+        color: var(--text-primary);
+        font-size: 11px;
+        font-family: inherit;
+        resize: none;
+        min-height: 32px;
+        max-height: 80px;
+        outline: none;
+        transition: border var(--transition);
+      }
+
+      .input-field:focus {
+        border-color: var(--accent);
+      }
+      .input-field::placeholder {
+        color: var(--text-muted);
+      }
+
+      .send-btn {
+        background: var(--accent);
+        border: none;
+        border-radius: var(--radius-sm);
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+
+      .send-btn:hover:not(:disabled) {
+        background: var(--accent-dim);
+      }
+      .send-btn:disabled {
+        background: var(--bg-tertiary);
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .send-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: white;
+      }
+
+      /* ========== MODAL OVERLAY ========== */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(2px);
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 60px;
+        z-index: 100;
+      }
+
+      .modal-overlay.open {
+        display: flex;
+      }
+
+      .modal {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        width: 280px;
+        max-height: 320px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow);
+        animation: modalIn 0.15s ease;
+      }
+
+      @keyframes modalIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .modal-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 2px;
+        font-size: 14px;
+        line-height: 1;
+      }
+
+      .modal-close:hover {
+        color: var(--text-primary);
+      }
+
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+      }
+
+      .modal-item {
+        padding: 8px 10px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background var(--transition);
+      }
+
+      .modal-item:hover {
+        background: var(--bg-hover);
+      }
+      .modal-item.selected {
+        background: var(--accent-glow);
+      }
+
+      .modal-item-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-xs);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-item-icon svg {
+        width: 12px;
+        height: 12px;
+        stroke: var(--text-secondary);
+      }
+
+      .modal-item-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .modal-item-name {
+        font-size: 11px;
+        color: var(--text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .modal-item-meta {
+        font-size: 9px;
+        color: var(--text-muted);
+      }
+
+      .modal-footer {
+        padding: 8px 12px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 6px;
+      }
+
+      .modal-btn {
+        flex: 1;
+        padding: 6px 10px;
+        border-radius: var(--radius-sm);
+        font-size: 10px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+
+      .modal-btn.primary {
+        background: var(--accent);
+        border: none;
+        color: white;
+      }
+
+      .modal-btn.primary:hover {
+        background: var(--accent-dim);
+      }
+
+      .modal-btn.secondary {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+      }
+
+      .modal-btn.secondary:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+
+      /* ========== CONTEXT MINI BAR ========== */
+      .context-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .context-bar.hidden {
+        display: none;
+      }
+
+      .context-chip {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--accent-glow);
+        border: 1px solid var(--accent);
+        border-radius: var(--radius-xs);
+        padding: 3px 6px;
+        font-size: 9px;
+        color: var(--accent);
+      }
+
+      .context-chip svg {
+        width: 10px;
+        height: 10px;
+      }
+      .context-chip .x {
+        cursor: pointer;
+        margin-left: 2px;
+        opacity: 0.7;
+      }
+      .context-chip .x:hover {
+        opacity: 1;
+      }
+
+      /* ========== QUICK ACTIONS MINI ========== */
+      .quick-bar {
+        display: flex;
+        gap: 4px;
+        padding: 6px 12px;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .quick-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .quick-btn {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 4px 8px;
+        font-size: 9px;
+        color: var(--text-muted);
+        cursor: pointer;
+        white-space: nowrap;
+        font-family: inherit;
+        transition: all var(--transition);
+      }
+
+      .quick-btn:hover {
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+        border-color: var(--border-light);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* ========== MORE MENU ========== */
+      .more-menu {
+        position: absolute;
+        top: 82px;
+        right: 12px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 4px;
+        min-width: 160px;
+        box-shadow: var(--shadow);
+        z-index: 50;
+        animation: menuIn 0.1s ease;
+      }
+
+      @keyframes menuIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .more-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: var(--radius-xs);
+        font-size: 10px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition);
+      }
+
+      .more-menu-item:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+      }
+
+      .more-menu-item svg {
+        width: 14px;
+        height: 14px;
+        opacity: 0.7;
+      }
+
+      .more-menu-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+      }
+
+      /* ========== LIBRARY VIEW (inline, not modal) ========== */
+      .library-view {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        background: var(--bg-primary);
+        overflow: hidden;
+      }
+
+      .library-view.active {
+        display: flex;
+      }
+
+      .library-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 8px 12px;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .library-tab {
+        background: transparent;
+        border: none;
+        padding: 4px 8px;
+        font-size: 9px;
+        color: var(--text-muted);
+        cursor: pointer;
+        border-radius: var(--radius-xs);
+        font-family: inherit;
+        transition: all var(--transition);
+      }
+
+      .library-tab:hover {
+        color: var(--text-secondary);
+        background: var(--bg-hover);
+      }
+
+      .library-tab.active {
+        color: var(--accent);
+        background: var(--accent-glow);
+      }
+
+      .library-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 12px;
+      }
+
+      /* ========== LIBRARY ITEMS ========== */
+      .library-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-card);
+        margin-bottom: 6px;
+        border: 1px solid var(--border);
+        transition: all var(--transition);
+      }
+
+      .library-item:hover {
+        border-color: var(--border-light);
+      }
+
+      .library-item-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .library-item-text {
+        font-size: 10px;
+        color: var(--text-primary);
+        line-height: 1.4;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .library-item-meta {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 8px;
+        color: var(--text-muted);
+      }
+
+      .library-item-meta .badge {
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 7px;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .badge.local {
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+      }
+
+      .badge.synced {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+      }
+
+      .badge.indexed {
+        background: var(--accent-glow);
+        color: var(--accent);
+      }
+
+      .library-item-actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .library-action-btn {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 4px;
+        font-size: 8px;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: inherit;
+        transition: all var(--transition);
+        white-space: nowrap;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .library-action-btn svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      .library-action-btn:hover:not(:disabled) {
+        background: var(--bg-hover);
+        color: var(--text-secondary);
+        border-color: var(--border-light);
+      }
+
+      .library-action-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .library-action-btn.sync-btn:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .library-action-btn.index-btn:hover {
+        color: #22c55e;
+        border-color: #22c55e;
+      }
+
+      .library-action-btn.unindex-btn:hover {
+        color: #f59e0b;
+        border-color: #f59e0b;
+      }
+
+      .library-action-btn.delete-btn:hover {
+        color: #ef4444;
+        border-color: #ef4444;
+      }
+
+      .library-empty {
+        text-align: center;
+        padding: 32px 12px;
+        color: var(--text-muted);
+        font-size: 10px;
+      }
+
+      .library-empty svg {
+        width: 32px;
+        height: 32px;
+        opacity: 0.3;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- HEADER -->
+    <div class="header">
+      <div class="brand">
+        <img src="icons/icon32.png" alt="W" />
+        <span>WhytCard</span>
+      </div>
+      <div class="header-controls">
+        <button class="ctrl-btn" id="langBtn" title="Language">
+          <span id="currentLang">EN</span>
+        </button>
+        <button class="ctrl-btn" id="projectBtn" title="Select Project">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          <span id="projectName">Project</span>
+        </button>
+        <button class="ctrl-btn" id="sessionBtn" title="Select Session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span id="sessionName">Session</span>
+        </button>
+        <div class="status-indicator" id="statusDot" title="Hub Status"></div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="tool-chip selected" id="chatTab" data-view="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        Chat
+      </div>
+      <div class="tool-chip" id="libraryBtn" data-view="library">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg>
+        Library
+        <span class="count" id="libraryCount">0</span>
+      </div>
+      <div style="flex: 1"></div>
+      <div class="tool-chip" id="moreBtn" title="More options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="1" />
+          <circle cx="19" cy="12" r="1" />
+          <circle cx="5" cy="12" r="1" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- MORE MENU (hidden by default) -->
+    <div class="hidden more-menu" id="moreMenu">
+      <div class="more-menu-item" id="capturePageBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        Save Page
+      </div>
+      <div class="more-menu-item" id="screenshotBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+        Screenshot
+      </div>
+      <div class="more-menu-divider"></div>
+      <div class="more-menu-item" id="graphMenuBtn" data-view="graph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+        Knowledge Graph
+      </div>
+      <div class="more-menu-item" id="docsMenuBtn" data-view="docs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+        </svg>
+        Documents
+      </div>
+    </div>
+
+    <!-- CONTEXT BAR (only shown when page context exists) -->
+    <div class="hidden context-bar" id="contextBar">
+      <div class="context-chip" id="pageContextChip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        </svg>
+        <span id="contextPageTitle">Page</span>
+        <span class="x" id="clearContextBtn">x</span>
+      </div>
+    </div>
+
+    <!-- MAIN VIEW -->
+    <div class="main-view">
+      <!-- CHAT VIEW -->
+      <div class="chat-view active" id="chatView">
+        <div class="chat-messages" id="chatMessages">
+          <div class="empty-chat" id="emptyChat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span>Select project & session to chat</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRAPH VIEW -->
+      <div class="graph-view" id="graphView">
+        <div class="graph-header">
+          <span class="graph-title">Knowledge Graph</span>
+          <button class="ctrl-btn" id="refreshGraphBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+          </button>
+        </div>
+        <div class="graph-canvas" id="graphCanvas">
+          <!-- Nodes rendered here -->
+        </div>
+        <div class="graph-stats">
+          <div class="stat-item">
+            <span class="stat-dot project"></span><span id="statProjects">0 projects</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-dot session"></span><span id="statSessions">0 sessions</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-dot document"></span><span id="statDocs">0 docs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCS VIEW -->
+      <div class="graph-view" id="docsView">
+        <div class="graph-header">
+          <span class="graph-title">Linked Documents</span>
+          <button class="ctrl-btn" id="addDocBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body" id="docsList">
+          <div class="empty-chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            </svg>
+            <span>No documents linked</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIBRARY VIEW (inline, not modal) -->
+      <div class="library-view" id="libraryView">
+        <div class="library-tabs">
+          <button class="library-tab active" data-library-tab="highlights">Highlights</button>
+          <button class="library-tab" data-library-tab="clips">Clips</button>
+          <button class="library-tab" data-library-tab="notes">Notes</button>
+          <button class="library-tab" data-library-tab="pages">Pages</button>
+        </div>
+        <div class="library-list" id="libraryContent">
+          <!-- Library items rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- INPUT BAR -->
+    <div class="input-bar">
+      <textarea class="input-field" id="inputField" placeholder="Message..." rows="1"></textarea>
+      <button class="send-btn" id="sendBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- MODAL: PROJECT SELECTOR -->
+    <div class="modal-overlay" id="projectModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Select Project</span>
+          <button class="modal-close" id="closeProjectModal">x</button>
+        </div>
+        <div class="modal-body" id="projectList">
+          <!-- Projects loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn secondary" id="cancelProjectModal">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: SESSION SELECTOR -->
+    <div class="modal-overlay" id="sessionModal">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">Select Session</span>
+          <button class="modal-close" id="closeSessionModal">x</button>
+        </div>
+        <div class="modal-body" id="sessionList">
+          <!-- Sessions loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn secondary" id="newSessionModalBtn">+ New Session</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: LANGUAGE SELECTOR -->
+    <div class="modal-overlay" id="langModal">
+      <div class="modal" style="width: 200px">
+        <div class="modal-header">
+          <span class="modal-title">Language</span>
+          <button class="modal-close" id="closeLangModal">x</button>
+        </div>
+        <div class="modal-body" id="langList">
+          <div class="modal-item" data-lang="en">
+            <span class="modal-item-name">English</span>
+          </div>
+          <div class="modal-item" data-lang="fr">
+            <span class="modal-item-name">Francais</span>
+          </div>
+          <div class="modal-item" data-lang="es">
+            <span class="modal-item-name">Espanol</span>
+          </div>
+          <div class="modal-item" data-lang="de">
+            <span class="modal-item-name">Deutsch</span>
+          </div>
+          <div class="modal-item" data-lang="it">
+            <span class="modal-item-name">Italiano</span>
+          </div>
+          <div class="modal-item" data-lang="pt">
+            <span class="modal-item-name">Portugues</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="fileInput" class="hidden" multiple />
+
+    <script src="i18n.js"></script>
+    <script src="storage.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

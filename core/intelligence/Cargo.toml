@@ -1,0 +1,71 @@
+[package]
+authors = ["WhytCard Team"]
+categories = ["development-tools"]
+description = "MCP server for WhytCard intelligence - memory, knowledge graph, semantic search"
+edition = "2021"
+keywords = ["intelligence", "knowledge-graph", "mcp", "rag"]
+license = "GPL-3.0"
+name = "whytcard-intelligence"
+repository = "https://github.com/whytcard/whytcard"
+version = "0.1.0"
+
+[dependencies]
+# MCP SDK officiel - server + client
+rmcp = { version = "0.8", features = [
+    "client",
+    "macros",
+    "server",
+    "transport-child-process",
+    "transport-io",
+    "transport-sse-client",
+] }
+
+# Core WhytCard
+whytcard-database = { path = "../database" }
+whytcard-rag = { path = "../rag" }
+
+# Async runtime
+tokio = { version = "1", features = ["full", "process"] }
+
+# HTTP client for integrations
+async-trait = "0.1"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Schema generation for MCP tools - MUST match rmcp's version
+schemars = "1"
+
+# Platform-specific directories
+directories = "5"
+
+# Configuration
+toml = "0.8"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+glob = "0.3"
+regex = "1"
+serde_yaml = "0.9"
+uuid = { version = "1", features = ["serde", "v4"] }
+
+[dev-dependencies]
+tempfile = "3"
+tokio-test = "0.4"
+
+[[bin]]
+name = "whytcard-intelligence"
+path = "src/main.rs"
+
+[features]
+default = []

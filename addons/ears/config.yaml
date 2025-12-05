@@ -1,0 +1,34 @@
+# WhytCard Transcript - Configuration
+
+whisper:
+  model: base # tiny, base, small, medium, large
+  device: cpu # cpu, cuda
+  language: fr # Default language
+
+hub:
+  url: http://localhost:3000
+  token: ${WHYTCARD_TOKEN}
+  auto_register: true
+
+output:
+  format: markdown
+  include_timestamps: false
+  include_confidence: false
+  include_raw: true
+  include_corrected: true
+  include_summary: true
+
+server:
+  host: 0.0.0.0
+  port: 3001
+
+capabilities:
+  - name: transcribe_audio
+    description: Transcribe audio file to text
+    timeout_ms: 300000
+  - name: transcribe_url
+    description: Transcribe audio from URL
+    timeout_ms: 300000
+  - name: export_pdf
+    description: Export transcription to PDF
+    timeout_ms: 60000
