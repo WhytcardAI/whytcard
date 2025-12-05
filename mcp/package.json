@@ -1,0 +1,7 @@
+{
+  "name": "whytcard-mcp-servers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local MCP server installations",
+  "dependencies": {}
+}

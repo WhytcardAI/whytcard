@@ -1,51 +1,54 @@
 # WhytCard Core
 
-Core functionalities of the WhytCard ecosystem.
+Core modules of the WhytCard AI infrastructure.
 
 ## Structure
 
 ```
 core/
-├── hub/              # Tauri Application + HTTP API
-│   ├── backend/      # Rust (Axum)
-│   └── frontend/     # React
+├── intelligence/     # MCP Server + CORTEX Engine
+│   └── ...           # Triple memory + knowledge graph + MCP Gateway
 │
-├── llm/              # Local LLM inference
-│   └── ...           # llama.cpp integration
+├── database/         # SurrealDB persistence
+│   └── migrations/
 │
 ├── rag/              # Retrieval-Augmented Generation
-│   └── ...           # Vector embeddings
+│   └── ...           # FastEmbed embeddings
 │
-├── intelligence/     # CORTEX Memory (MCP Server)
-│   └── ...           # Triple memory + knowledge graph
+├── llm/              # Local LLM inference
+│   └── ...           # llama.cpp/GGUF integration
 │
-└── database/         # SurrealDB persistence
-    └── migrations/
+└── mcp/              # MCP Gateway configuration
+    └── servers.json
 ```
 
 ## Principle
 
-Each subdirectory is an **independent feature**:
+Each subdirectory is an **independent module**:
 
 - Can be updated separately
 - Has its own single responsibility
-- Communicates via well-defined internal APIs
+- Communicates via MCP Protocol
 
 ## Inter-Module Communication
 
 ```
-┌─────────┐
-│   HUB   │ ← Single entry point
-└────┬────┘
-     │
-     ├──────────┬──────────┬──────────┐
-     ▼          ▼          ▼          ▼
-┌─────────┐┌─────────┐┌─────────┐┌─────────┐
-│   LLM   ││   RAG   ││INTELLIG.││DATABASE │
-└─────────┘└─────────┘└─────────┘└─────────┘
+┌──────────────┐
+│   VS Code    │ ← Entry point (VSIX)
+│    (MCP)     │
+└──────┬───────┘
+       │ MCP Protocol
+       ▼
+┌──────────────┐
+│ INTELLIGENCE │ ← Orchestrator
+└──────┬───────┘
+       │
+       ├──────────┬──────────┐
+       ▼          ▼          ▼
+┌─────────┐┌─────────┐┌─────────┐
+│   RAG   ││   LLM   ││DATABASE │
+└─────────┘└─────────┘└─────────┘
 ```
-
-The Hub orchestrates, the modules execute.
 
 ## License
 
